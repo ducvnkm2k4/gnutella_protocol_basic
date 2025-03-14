@@ -60,19 +60,12 @@ std::array<uint8_t, 4> getLocalIPWin()
     // Trả về địa chỉ IP của máy tính dưới dạng mảng 4 byte
     return localIP;
 }
-<<<<<<< HEAD
-#else                  // linux
-#include <netdb.h>     // Hỗ trợ DNS và địa chỉ mạng
-#include <unistd.h>    // Hỗ trợ thao tác với hệ thống (close socket)
-#include <arpa/inet.h> // Chuyển đổi địa chỉ IP giữa dạng nhị phân và chuỗi
-=======
 #else                   // Nếu không phải Windows (giả định Linux)
 #include <sys/types.h>  // Kiểu dữ liệu hệ thống
 #include <sys/socket.h> // Thư viện socket trên Linux
 #include <netdb.h>      // Hỗ trợ DNS và địa chỉ mạng
 #include <unistd.h>     // Hỗ trợ thao tác với hệ thống (close socket)
 #include <arpa/inet.h>  // Chuyển đổi địa chỉ IP giữa dạng nhị phân và chuỗi
->>>>>>> 952d6326289f05057a30574753dec55da7e9fcef
 #include <ifaddrs.h>
 std::array<uint8_t, 4> getLocalIPLinux()
 {
