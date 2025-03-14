@@ -66,47 +66,41 @@ std::array<uint8_t, 4> getLocalIPWin()
 #include <netdb.h>      // Hỗ trợ DNS và địa chỉ mạng
 #include <unistd.h>     // Hỗ trợ thao tác với hệ thống (close socket)
 #include <arpa/inet.h>  // Chuyển đổi địa chỉ IP giữa dạng nhị phân và chuỗi
+#include <ifaddrs.h>
 std::array<uint8_t, 4> getLocalIPLinux()
 {
-    // Tạo mảng để lưu tên máy (hostname)
-    char hostname[256];
-
-    // Lấy tên máy (hostname) của hệ thống
-    if (gethostname(hostname, sizeof(hostname)) == -1) // Nếu lỗi khi lấy hostname
-    {
-        return {0, 0, 0, 0}; // Trả về IP mặc định 0.0.0.0
-    }
-
-    // Cấu hình thông tin tìm kiếm địa chỉ IP
-    struct addrinfo hints = {}, *info, *p;
-    hints.ai_family = AF_INET; // Chỉ lấy địa chỉ IPv4
-
-    // Lấy danh sách địa chỉ IP tương ứng với hostname
-    if (getaddrinfo(hostname, NULL, &hints, &info) != 0)
-    {
-        return {0, 0, 0, 0}; // Trả về IP mặc định 0.0.0.0 nếu xảy ra lỗi
-    }
-
-    // Khởi tạo mảng để lưu địa chỉ IP
+    struct ifaddrs *ifaddr, *ifa;
     std::array<uint8_t, 4> localIP = {0, 0, 0, 0};
 
-    // Duyệt danh sách địa chỉ IP lấy được
-    for (p = info; p != NULL; p = p->ai_next)
+    // Lấy danh sách các interface mạng
+    if (getifaddrs(&ifaddr) == -1)
     {
-        // Ép kiểu địa chỉ về IPv4 (sockaddr_in)
-        struct sockaddr_in *addr = (struct sockaddr_in *)p->ai_addr;
-
-        // Sao chép 4 byte địa chỉ IP vào mảng localIP
-        std::memcpy(localIP.data(), &addr->sin_addr, 4);
-
-        // Lấy địa chỉ IP đầu tiên và thoát vòng lặp
-        break;
+        return {0, 0, 0, 0}; // Trả về 0.0.0.0 nếu lỗi
     }
 
-    // Giải phóng bộ nhớ đã cấp phát cho danh sách địa chỉ
-    freeaddrinfo(info);
+    // Duyệt qua danh sách interface
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        if (ifa->ifa_addr == NULL)
+            continue;
 
-    // Trả về địa chỉ IP của máy tính dưới dạng mảng 4 byte
+        // Chỉ lấy địa chỉ IPv4
+        if (ifa->ifa_addr->sa_family == AF_INET)
+        {
+            struct sockaddr_in *addr = (struct sockaddr_in *)ifa->ifa_addr;
+
+            // Bỏ qua địa chỉ loopback (127.0.0.1)
+            if (std::strcmp(ifa->ifa_name, "ens33") == 0) // Chỉ lấy eth0, wlan0, enpXsY, v.v.
+            {
+                std::memcpy(localIP.data(), &addr->sin_addr, 4);
+                break; // Lấy địa chỉ IP đầu tiên không phải loopback rồi thoát
+            }
+        }
+    }
+
+    // Giải phóng danh sách interface
+    freeifaddrs(ifaddr);
+
     return localIP;
 }
 #endif
