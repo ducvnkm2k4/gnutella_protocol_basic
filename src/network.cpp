@@ -143,17 +143,17 @@ void sendMessageTCP(const std::string peerIP, int port)
     // Dọn dẹp Winsock
     WSACleanup();
 }
-void sendPingMessage(){
-
+void sendPingMessage()
+{
 }
-void sendPongMessage(){
-
+void sendPongMessage()
+{
 }
-void sendQueryMessage(){
-
+void sendQueryMessage()
+{
 }
-void sendQueryHitMessage(){
-
+void sendQueryHitMessage()
+{
 }
 #elif defined(__linux__)
 // Nếu đang sử dụng Linux, bao gồm các thư viện POSIX
