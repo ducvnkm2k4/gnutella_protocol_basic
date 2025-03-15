@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <array>
-#include "get_local_ip.h"
+#include "getLocalIp.h"
 extern int port;
 extern std::array<uint8_t, 4> ipv4;
-
+extern int ttl;
 #endif

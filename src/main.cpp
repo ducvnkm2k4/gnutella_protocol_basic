@@ -1,12 +1,11 @@
 #include <iostream>
+#include <string.h>
 #include "protocol.h"
+#include "network.h"
 int main()
 {
-    std::cout << "IPv4: ";
-    for (auto byte : ipv4)
-    {
-        std::cout << (int)byte << "."; // In từng byte của IPv4
-    }
-    std::cout << "\b ";
+    std::string remoteIP = "192.168.34.197";
+    int remotePort = 8080;
+
     return 0;
 }
