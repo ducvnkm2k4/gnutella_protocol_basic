@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <cstdint>
-void connectPeer();
+#include <string>
+void connectPeer(const std::string, int port);
 void listenConnect(int port);
 
 #endif // NETWORK_H
