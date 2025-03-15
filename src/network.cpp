@@ -226,7 +226,7 @@ void connectPeer(const std::string peerIP, int port)
     struct sockaddr_in server_address;
 
     // Tạo socket TCP (SOCK_STREAM) sử dụng giao thức IPv4 (AF_INET)
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)g
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         perror("Socket failed"); // Nếu tạo socket thất bại
         exit(EXIT_FAILURE);      // Thoát chương trình
