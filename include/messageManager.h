@@ -1,17 +1,11 @@
 #ifndef MESSAGE_MANAGER_H
 #define MESSAGE_MANAGER_H
 #include "messagePacket.h"
+#include <cstring>
+#include <string>
 MessagePacket pingMessage();
-void pongMessage();
+MessagePacket pongMessage(int port, std::string ipAddress, int numFileShare, int sumKByteShare);
 void queryMessage();
 void queryHitMessage();
-void sendPing();
-void receivePing();
-void sendPong();
-void reveivePong();
-void sendQuery();
-void receiveQuery();
-void sendQueryHit();
-void receiveQueryHit();
 
 #endif

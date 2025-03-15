@@ -1,8 +1,17 @@
 #include <vector>
 #include <cstdint>
+#include <cstring>
+#include <string>
 #include "messageManager.h"
 #include "messagePacket.h"
 #include "protocol.h"
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#elif defined(__linux__)
+#include <arpa/inet.h>
+#endif
 // Tạo gói tin PING
 MessagePacket pingMessage()
 {
@@ -15,13 +24,29 @@ MessagePacket pingMessage()
 }
 
 // Tạo gói tin PONG
-MessagePacket pongMessage(std::vector<uint8_t> payload)
+MessagePacket pongMessage(int port, std::string ipAddress, int numFileShare, int sumKByteShare)
 {
     MessagePacket pongPacket;
     pongPacket.setType(MessageType::PONG); // Set loại gói tin là PONG
     pongPacket.setTTL(ttl);                // Set TTL mặc định
     pongPacket.setHops(0);                 // Set số lần chuyển tiếp
+
+    // Chuẩn bị payload (14 bytes)
+    std::vector<uint8_t> payload(14, 0); // Mặc định tất cả phần tử là 0
+
+    // Chèn cổng (2 bytes)
+    payload[0] = (port >> 8) & 0xFF;
+    payload[1] = port & 0xFF;
+
+    // Chèn địa chỉ IP (4 bytes)
+    uint32_t ip = inet_addr(ipAddress.c_str()); // Chuyển IP string sang uint32_t
+    std::memcpy(&payload[2], &ip, 4);
+
+    // Do số lượng file và tổng dung lượng chia sẻ đều bằng 0, ta giữ nguyên 8 byte cuối của payload
+
+    // Gán payload vào gói tin
     pongPacket.setPayload(payload);
+
     return pongPacket;
 }
 
@@ -45,65 +70,4 @@ MessagePacket queryHitMessage(const std::vector<uint8_t> &hitData)
     queryHitPacket.setHops(0);                      // Set số lần chuyển tiếp
     queryHitPacket.setPayload(hitData);             // Gửi dữ liệu trong payload (hitData)
     return queryHitPacket;
-}
-
-// Hàm gửi gói tin PING
-void sendPing()
-{
-    MessagePacket ping = pingMessage(); // Tạo gói tin PING
-    // Logic để gửi gói tin ping qua mạng
-    // ví dụ: gửi gói tin ping qua socket hoặc giao thức mạng
-}
-
-// Hàm nhận gói tin PING
-void receivePing(const MessagePacket &ping)
-{
-    // Logic xử lý gói tin PING khi nhận được
-    // ví dụ: kiểm tra TTL, số lần chuyển tiếp, và dữ liệu trong gói tin
-}
-
-// Hàm gửi gói tin PONG
-void sendPong(const MessagePacket &ping)
-{
-    std::vector<uint8_t> payload;
-    MessagePacket pong = pongMessage(payload); // Tạo gói tin PONG
-    // Logic để gửi gói tin pong qua mạng
-    // ví dụ: trả lời lại gói tin PING với gói tin PONG
-}
-
-// Hàm nhận gói tin PONG
-void receivePong(const MessagePacket &pong)
-{
-    // Logic xử lý gói tin PONG khi nhận được
-    // ví dụ: kiểm tra TTL, số lần chuyển tiếp, và dữ liệu trong gói tin
-}
-
-// Hàm gửi gói tin QUERY
-void sendQuery(const std::vector<uint8_t> &queryData)
-{
-    MessagePacket query = queryMessage(queryData); // Tạo gói tin QUERY
-    // Logic để gửi gói tin query qua mạng
-    // ví dụ: gửi gói tin query để tìm kiếm tài nguyên trên mạng
-}
-
-// Hàm nhận gói tin QUERY
-void receiveQuery(const MessagePacket &query)
-{
-    // Logic xử lý gói tin QUERY khi nhận được
-    // ví dụ: kiểm tra TTL, số lần chuyển tiếp, và dữ liệu trong gói tin
-}
-
-// Hàm gửi gói tin QUERY_HIT
-void sendQueryHit(const std::vector<uint8_t> &hitData)
-{
-    MessagePacket queryHit = queryHitMessage(hitData); // Tạo gói tin QUERY_HIT
-    // Logic để gửi gói tin query hit qua mạng
-    // ví dụ: gửi gói tin query hit để trả về kết quả tìm kiếm
-}
-
-// Hàm nhận gói tin QUERY_HIT
-void receiveQueryHit(const MessagePacket &queryHit)
-{
-    // Logic xử lý gói tin QUERY_HIT khi nhận được
-    // ví dụ: kiểm tra TTL, số lần chuyển tiếp, và dữ liệu trong gói tin
 }

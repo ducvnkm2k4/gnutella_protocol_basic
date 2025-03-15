@@ -11,7 +11,7 @@
 #include <ws2tcpip.h>
 
 // Hàm lắng nghe kết nối từ client
-void listenConnect(int port)
+void listenConnectTCP(int port)
 {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -92,7 +92,7 @@ void listenConnect(int port)
 }
 
 // Hàm kết nối tới server (client)
-void connectPeer(const std::string peerIP, int port)
+void sendMessageTCP(const std::string peerIP, int port)
 {
     // Khởi tạo Winsock
     WSADATA wsaData;
@@ -143,7 +143,18 @@ void connectPeer(const std::string peerIP, int port)
     // Dọn dẹp Winsock
     WSACleanup();
 }
+void sendPingMessage(){
 
+}
+void sendPongMessage(){
+
+}
+void sendQueryMessage(){
+
+}
+void sendQueryHitMessage(){
+
+}
 #elif defined(__linux__)
 // Nếu đang sử dụng Linux, bao gồm các thư viện POSIX
 #include <sys/socket.h>
@@ -151,7 +162,7 @@ void connectPeer(const std::string peerIP, int port)
 #include <arpa/inet.h>
 
 // Hàm lắng nghe kết nối từ client
-void listenConnect(int port)
+void listenConnectTCP(int port)
 {
     int server_fd, new_socket;
     struct sockaddr_in address;
@@ -220,17 +231,18 @@ void listenConnect(int port)
 }
 
 // Hàm kết nối tới server (client)
-void connectPeer(const std::string peerIP, int port)
+void sendMessageTCP(const std::string peerIP, int port)
 {
     int sock;
     struct sockaddr_in server_address;
 
     // Tạo socket TCP (SOCK_STREAM) sử dụng giao thức IPv4 (AF_INET)
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)g
-    {
-        perror("Socket failed"); // Nếu tạo socket thất bại
-        exit(EXIT_FAILURE);      // Thoát chương trình
-    }
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        g
+        {
+            perror("Socket failed"); // Nếu tạo socket thất bại
+            exit(EXIT_FAILURE);      // Thoát chương trình
+        }
 
     // Cấu hình thông tin địa chỉ của server mà client muốn kết nối
     server_address.sin_family = AF_INET;
@@ -257,5 +269,16 @@ void connectPeer(const std::string peerIP, int port)
     // Đóng socket sau khi giao tiếp xong
     close(sock);
 }
-
+void sendPingMessage()
+{
+}
+void sendPongMessage()
+{
+}
+void sendQueryMessage()
+{
+}
+void sendQueryHitMessage()
+{
+}
 #endif

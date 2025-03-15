@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <cstdint>
-#include <string>
-void connectPeer(const std::string, int port);
-void listenConnect(int port);
-
+#include <cstring>
+void sendMessageTCP(const std::string, int port);
+void listenConnectTCP(int port);
+void sendPingMessage();
+void sendPongMessage();
+void sendQueryMessage();
+void sendQueryHitMessage();
 #endif // NETWORK_H
