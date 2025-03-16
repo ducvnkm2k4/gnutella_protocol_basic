@@ -9,4 +9,11 @@ run task window:
     "-lws2_32"
 ],
 
-run task linux
+run task linux:
+"args": [
+    "-I",
+    "${workspaceFolder}/include/",
+    "${workspaceFolder}/src/*.cpp",
+    "-o",
+    "${workspaceFolder}/bin/main",
+],

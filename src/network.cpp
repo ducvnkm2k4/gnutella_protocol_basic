@@ -267,6 +267,7 @@ void sendQueryHitMessage()
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 void listenMessageUDP(int port)
 {
@@ -399,7 +400,6 @@ void sendMessageTCP(const std::string peerIP, int port)
 
     // Tạo socket TCP (SOCK_STREAM) sử dụng giao thức IPv4 (AF_INET)
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-        g
         {
             perror("Socket failed"); // Nếu tạo socket thất bại
             exit(EXIT_FAILURE);      // Thoát chương trình
