@@ -6,6 +6,8 @@
 #include <cstring>
 void sendMessageTCP(const std::string, int port);
 void listenConnectTCP(int port);
+void listenMessageUDP(int port);
+void handleMessageUDP();
 void sendPingMessage();
 void sendPongMessage();
 void sendQueryMessage();

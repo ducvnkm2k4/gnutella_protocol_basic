@@ -1,5 +1,6 @@
 #include "network.h"
-#include <unistd.h>
+#include "messageManager.h"
+
 #include <cstring>
 #include <iostream>
 #include <array>
@@ -9,6 +10,71 @@
 // Nếu đang sử dụng Windows, bao gồm thư viện Winsock
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
+void listenMessageUDP(int port)
+{
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
+        std::cerr << "WSAStartup failed: " << WSAGetLastError() << std::endl;
+        return;
+    }
+
+    SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == INVALID_SOCKET)
+    {
+        std::cerr << "Socket creation failed: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return;
+    }
+
+    sockaddr_in serverAddr{};
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(port);
+
+    if (bind(sock, (sockaddr *)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
+    {
+        std::cerr << "Bind failed: " << WSAGetLastError() << std::endl;
+        closesocket(sock);
+        WSACleanup();
+        return;
+    }
+
+    std::cout << "Listening for UDP messages on port " << port << "...\n";
+
+    while (true)
+    {
+        sockaddr_in clientAddr;
+        int clientAddrLen = sizeof(clientAddr);
+        char buffer[1024];
+
+        int recvLen = recvfrom(sock, buffer, sizeof(buffer), 0, (sockaddr *)&clientAddr, &clientAddrLen);
+        if (recvLen == SOCKET_ERROR)
+        {
+            std::cerr << "recvfrom failed: " << WSAGetLastError() << std::endl;
+            continue;
+        }
+
+        buffer[recvLen] = '\0';
+        std::cout << "Received UDP message: " << buffer << std::endl;
+
+        // handleMessageUDP(buffer, clientAddr);
+    }
+
+    closesocket(sock);
+    WSACleanup();
+}
+
+void handleMessageUDP(const char *message, sockaddr_in &clientAddr)
+{
+    std::cout << "Processing message: " << message << std::endl;
+
+    if (strcmp(message, "PING") == 0)
+    {
+        // sendPongMessage(clientAddr);
+    }
+}
 
 // Hàm lắng nghe kết nối từ client
 void listenConnectTCP(int port)
@@ -143,11 +209,52 @@ void sendMessageTCP(const std::string peerIP, int port)
     // Dọn dẹp Winsock
     WSACleanup();
 }
-void sendPingMessage()
+void sendPingMessage(const std::string &peerIP, int port)
 {
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
+        std::cerr << "WSAStartup failed\n";
+        return;
+    }
+
+    SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == INVALID_SOCKET)
+    {
+        std::cerr << "Socket creation failed\n";
+        WSACleanup();
+        return;
+    }
+
+    sockaddr_in serverAddr{};
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(port);
+    serverAddr.sin_addr.s_addr = inet_addr(peerIP.c_str());
+
+    const char *msg = "PING";
+    sendto(sock, msg, strlen(msg), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
+
+    std::cout << "Sent PING message to " << peerIP << ":" << port << std::endl;
+
+    closesocket(sock);
+    WSACleanup();
 }
-void sendPongMessage()
+
+void sendPongMessage(sockaddr_in &clientAddr)
 {
+    SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == INVALID_SOCKET)
+    {
+        std::cerr << "Socket creation failed\n";
+        return;
+    }
+
+    const char *msg = "PONG";
+    sendto(sock, msg, strlen(msg), 0, (sockaddr *)&clientAddr, sizeof(clientAddr));
+
+    std::cout << "Sent PONG response\n";
+
+    closesocket(sock);
 }
 void sendQueryMessage()
 {
@@ -161,6 +268,60 @@ void sendQueryHitMessage()
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+void listenMessageUDP(int port)
+{
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("Socket creation failed");
+        return;
+    }
+
+    sockaddr_in serverAddr{};
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(port);
+
+    if (bind(sock, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+    {
+        perror("Bind failed");
+        close(sock);
+        return;
+    }
+
+    std::cout << "Listening for UDP messages on port " << port << "...\n";
+
+    while (true)
+    {
+        sockaddr_in clientAddr;
+        socklen_t clientAddrLen = sizeof(clientAddr);
+        char buffer[1024];
+
+        int recvLen = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)&clientAddr, &clientAddrLen);
+        if (recvLen < 0)
+        {
+            perror("recvfrom failed");
+            continue;
+        }
+
+        buffer[recvLen] = '\0';
+        std::cout << "Received UDP message: " << buffer << std::endl;
+
+        handleMessageUDP(buffer, clientAddr);
+    }
+
+    close(sock);
+}
+
+void handleMessageUDP(const char *message, sockaddr_in &clientAddr)
+{
+    std::cout << "Processing message: " << message << std::endl;
+
+    if (strcmp(message, "PING") == 0)
+    {
+        sendPongMessage(clientAddr);
+    }
+}
 // Hàm lắng nghe kết nối từ client
 void listenConnectTCP(int port)
 {
@@ -269,11 +430,43 @@ void sendMessageTCP(const std::string peerIP, int port)
     // Đóng socket sau khi giao tiếp xong
     close(sock);
 }
-void sendPingMessage()
+void sendPingMessage(const std::string &peerIP, int port)
 {
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("Socket creation failed");
+        return;
+    }
+
+    sockaddr_in serverAddr{};
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(port);
+    inet_pton(AF_INET, peerIP.c_str(), &serverAddr.sin_addr);
+
+    const char *msg = "PING";
+    sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
+
+    std::cout << "Sent PING message to " << peerIP << ":" << port << std::endl;
+
+    close(sock);
 }
-void sendPongMessage()
+
+void sendPongMessage(sockaddr_in &clientAddr)
 {
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        perror("Socket creation failed");
+        return;
+    }
+
+    const char *msg = "PONG";
+    sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&clientAddr, sizeof(clientAddr));
+
+    std::cout << "Sent PONG response\n";
+
+    close(sock);
 }
 void sendQueryMessage()
 {
