@@ -30,12 +30,9 @@ void choose()
 }
 int main()
 {
-    loadConfig();
-    std::thread connecttcp(sendMessageTCP, "192.168.12.2", 50001);
-    connecttcp.detach();
-    std::thread udpListener(listenMessageUDP, portUDP);
-    udpListener.detach();
 
-    choose();
+    loadConfig();
+    listenConnectTCP(portTCP);
+    listenMessageUDP(portUDP);
     return 0;
 }
