@@ -1,6 +1,6 @@
 #include "network.h"
 #include "messageManager.h"
-
+#include "messagePacket.h"
 #include <cstring>
 #include <iostream>
 #include <array>
@@ -232,6 +232,7 @@ void sendPingMessage(const std::string &peerIP, int port)
     serverAddr.sin_addr.s_addr = inet_addr(peerIP.c_str());
 
     const char *msg = "PING";
+    MessagePacket ping = pingMessage();
     sendto(sock, msg, strlen(msg), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
 
     std::cout << "Sent PING message to " << peerIP << ":" << port << std::endl;

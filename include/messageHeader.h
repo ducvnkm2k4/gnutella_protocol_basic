@@ -32,10 +32,10 @@ public:
     void setdescriptorID(const std::array<uint8_t, 16> &id);
 
     // Getter for type
-    MessageType getType() const;
+    MessageType getpayloadDescriptor() const;
 
     // Setter for type
-    void setType(MessageType newType);
+    void setpayloadDescriptor(MessageType newType);
 
     // Getter for TTL
     uint8_t getTTL() const;

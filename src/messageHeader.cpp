@@ -18,12 +18,12 @@ void MessageHeader::setdescriptorID(const std::array<uint8_t, 16> &id)
     std::memcpy(descriptorID, id.data(), 16);
 }
 
-MessageType MessageHeader::getType() const
+MessageType MessageHeader::getpayloadDescriptor() const
 {
     return payloadDescriptor;
 }
 
-void MessageHeader::setType(MessageType newType)
+void MessageHeader::setpayloadDescriptor(MessageType newType)
 {
     payloadDescriptor = newType;
 }

@@ -16,7 +16,7 @@
 MessagePacket pingMessage()
 {
     MessagePacket pingPacket;
-    pingPacket.setType(MessageType::PING); // Set loại gói tin là PING
+    pingPacket.setpayloadDescriptor(MessageType::PING); // Set loại gói tin là PING
     pingPacket.setTTL(ttl);                // Set TTL mặc định
     pingPacket.setHops(0);                 // Set số lần chuyển tiếp
     pingPacket.setPayloadLength(0);        // Gói tin PING không có payload
@@ -27,7 +27,7 @@ MessagePacket pingMessage()
 MessagePacket pongMessage(int port, std::string ipAddress, int numFileShare, int sumKByteShare)
 {
     MessagePacket pongPacket;
-    pongPacket.setType(MessageType::PONG); // Set loại gói tin là PONG
+    pongPacket.setpayloadDescriptor(MessageType::PONG); // Set loại gói tin là PONG
     pongPacket.setTTL(ttl);                // Set TTL mặc định
     pongPacket.setHops(0);                 // Set số lần chuyển tiếp
 
@@ -54,7 +54,7 @@ MessagePacket pongMessage(int port, std::string ipAddress, int numFileShare, int
 MessagePacket queryMessage(const std::vector<uint8_t> &queryData)
 {
     MessagePacket queryPacket;
-    queryPacket.setType(MessageType::QUERY); // Set loại gói tin là QUERY
+    queryPacket.setpayloadDescriptor(MessageType::QUERY); // Set loại gói tin là QUERY
     queryPacket.setTTL(ttl);                 // Set TTL mặc định
     queryPacket.setHops(0);                  // Set số lần chuyển tiếp
     queryPacket.setPayload(queryData);       // Gửi dữ liệu trong payload (queryData)
@@ -65,7 +65,7 @@ MessagePacket queryMessage(const std::vector<uint8_t> &queryData)
 MessagePacket queryHitMessage(const std::vector<uint8_t> &hitData)
 {
     MessagePacket queryHitPacket;
-    queryHitPacket.setType(MessageType::QUERY_HIT); // Set loại gói tin là QUERY_HIT
+    queryHitPacket.setpayloadDescriptor(MessageType::QUERY_HIT); // Set loại gói tin là QUERY_HIT
     queryHitPacket.setTTL(ttl);                     // Set TTL mặc định
     queryHitPacket.setHops(0);                      // Set số lần chuyển tiếp
     queryHitPacket.setPayload(hitData);             // Gửi dữ liệu trong payload (hitData)

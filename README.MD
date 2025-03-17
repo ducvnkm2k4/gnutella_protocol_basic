@@ -17,3 +17,6 @@ run task linux:
     "-o",
     "${workspaceFolder}/bin/main",
 ],
+
+mở cổng 6436 cho lắng nghe udp 
+mở cổng cho giao thức tcp

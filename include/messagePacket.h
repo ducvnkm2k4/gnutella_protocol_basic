@@ -19,6 +19,8 @@ public:
 
     // Setter for payload
     void setPayload(const std::vector<uint8_t> &data);
+
+    std::vector<uint8_t> serialize() const;
 };
 
 #endif
